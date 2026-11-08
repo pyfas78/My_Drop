@@ -36,7 +36,7 @@ public class User {
         this.phone = phone;
         this.city = city;
         this.rating = 5.0;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDate.now();
     }
     public User() {}
 

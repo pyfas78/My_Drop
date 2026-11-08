@@ -6,6 +6,7 @@ import danilovich.dev.drop.model.enums.ItemStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,26 +18,49 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "description")
     private String description;
+
+    @Column(name = "price")
     private BigDecimal price;
+
+    @Column(name = "brand")
     private String brand;
+
+    @Column(name = "category")
     private String category;
+
+    @Column(name = "size")
     private String size;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
 
+    @Column(name = "gender")
     @Enumerated(EnumType.STRING)
     private  Gender gender;
 
+    @Column(name = "condition")
     @Enumerated(EnumType.STRING)
     private  Condition condition;
 
+    @Column(name = "chest_width")
     private Integer chestWidth;
+
+    @Column(name = "total_length")
     private Integer totalLength;
+
+    @Column(name = "shoulder_width")
     private Integer shoulderWidth;
+
+    @Column(name = "sleeve_length")
     private Integer sleeveLength;
+
+    @Column(name = "insole_length")
     private Double insoleLength;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -68,7 +92,7 @@ public class Item {
         this.seller = seller;
         this.images = images;
         this.viewsCount = viewsCount;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Item() {
