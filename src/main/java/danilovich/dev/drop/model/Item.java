@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,18 +23,30 @@ public class Item {
     private String brand;
     private String category;
     private String size;
-    private @Enumerated(EnumType.STRING) ItemStatus status;
-    private @Enumerated(EnumType.STRING) Gender gender;
-    private @Enumerated(EnumType.STRING) Condition condition;
+
+    @Enumerated(EnumType.STRING)
+    private ItemStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private  Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    private  Condition condition;
+
     private Integer chestWidth;
     private Integer totalLength;
     private Integer shoulderWidth;
     private Integer sleeveLength;
     private Double insoleLength;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User seller;
 
-    private List<String>@ElementCollection images;
+    @ElementCollection
+    @CollectionTable(name = "item_image", joinColumns = @JoinColumn(name = "item_id"))
+    @Column(name = "image_url")
+    private List<String> images = new ArrayList<>();
     private int viewsCount;
     private LocalDateTime createdAt;
 
