@@ -31,9 +31,22 @@ public class ItemService {
     public ItemResponse createItem(ItemCreateRequestDto dto) {
         User seller = userRepository.findById(dto.sellerId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Item item = new Item(dto.title(), dto.description(), dto.price(), dto.brand(), dto.category(), dto.size(),
-                dto.sellerId(), dto.chestWidth(), dto.totalLength(), dto.shoulderWidth(), dto.sleeveLength(),
-                dto.insoleLength(), dto.images(), dto.gender(), dto.condition());
+        Item item = new Item();
+        item.setTitle(dto.title());
+        item.setDescription(dto.description());
+        item.setPrice(dto.price());
+        item.setBrand(dto.brand());
+        item.setCategory(dto.category());
+        item.setSize(dto.size());
+        item.setSeller(seller);
+        item.setChestWidth(dto.chestWidth());
+        item.setTotalLength(dto.totalLength());
+        item.setShoulderWidth(dto.shoulderWidth());
+        item.setSleeveLength(dto.sleeveLength());
+        item.setInsoleLength(dto.insoleLength());
+        item.setImages(dto.images());
+        item.setGender(dto.gender());
+        item.setCondition(dto.condition());
         item.setStatus(ItemStatus.AVAILABLE);
         Item savedItem = itemRepository.save(item);
         return ItemResponse.fromEntity(savedItem);
