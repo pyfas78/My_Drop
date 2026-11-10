@@ -1,5 +1,6 @@
 package danilovich.dev.drop.service;
 
+import danilovich.dev.drop.dto.UserCreateRequestDto;
 import danilovich.dev.drop.model.User;
 import danilovich.dev.drop.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser() {
+    public User createUser(UserCreateRequestDto dto) {
         User user = new User();
+        user.setUsername(dto.username());
+        user.setCity(dto.city());
         user.setRating(5.0);
+        user.setPhone(dto.phone());
         return userRepository.save(user);
     }
 

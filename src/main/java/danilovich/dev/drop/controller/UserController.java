@@ -2,6 +2,8 @@ package danilovich.dev.drop.controller;
 
 import danilovich.dev.drop.dto.ItemCreateRequestDto;
 import danilovich.dev.drop.dto.ItemResponse;
+import danilovich.dev.drop.dto.UserCreateRequestDto;
+import danilovich.dev.drop.model.User;
 import danilovich.dev.drop.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public User createUser()
+    public User createUser(@RequestBody UserCreateRequestDto dto) {
+        return userService.createUser(dto);
     }
 }
