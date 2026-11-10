@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DROP — C2C Fashion Marketplace</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-neutral-950 text-neutral-100 min-h-screen flex flex-col">
+
+<!-- Навбар -->
+<header class="border-b border-neutral-800 bg-neutral-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <span class="text-2xl font-black tracking-widest text-white uppercase bg-lime-400 text-black px-2 py-0.5 rounded">DROP</span>
+            <span class="text-xs text-neutral-400 font-mono tracking-wider">BY / STREETWEAR</span>
+        </div>
+
+        <!-- Вкладки навигации -->
+        <nav class="flex space-x-2">
+            <button onclick="switchTab('feed')" id="tab-feed" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-neutral-800 text-lime-400">
+                Витрина
+            </button>
+            <button onclick="switchTab('create-item')" id="tab-create-item" class="px-4 py-2 rounded-lg text-sm font-semibold transition text-neutral-400 hover:text-white">
+                + Выставить вещь
+            </button>
+            <button onclick="switchTab('create-user')" id="tab-create-user" class="px-4 py-2 rounded-lg text-sm font-semibold transition text-neutral-400 hover:text-white">
+                + Продавец
+            </button>
+        </nav>
+    </div>
+</header>
+
+<!-- Уведомления (Toasts) -->
+<div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-4 py-3 rounded-lg shadow-xl text-sm font-semibold flex items-center space-x-2"></div>
+
+<!-- Главный контейнер -->
+<main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full">
+
+    <!-- 1. ВКЛАДКА: ВИТРИНА -->
+    <section id="view-feed">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Свежие дропы</h1>
+                <p class="text-sm text-neutral-400">Вещи с точными замерами в сантиметрах</p>
+            </div>
+            <button onclick="loadItems()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-neutral-900 border border-neutral-800 rounded-lg text-xs font-semibold hover:border-neutral-700 transition">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>Обновить</span>
+            </button>
+        </div>
+
+        <!-- Сетка вещей -->
+        <div id="items-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-neutral-500 text-sm">Загрузка объявлений...</p>
+        </div>
+    </section>
+
+    <!-- 2. ВКЛАДКА: ВЫСТАВИТЬ ВЕЩЬ -->
+    <section id="view-create-item" class="hidden max-w-2xl mx-auto">
+        <div class="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-xl font-bold mb-4">Выставить вещь на DROP</h2>
+
+            <form onsubmit="handleCreateItem(event)" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">Название *</label>
+                        <input type="text" id="item-title" required placeholder="Например: Худи Carhartt WIP" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">Бренд *</label>
+                        <input type="text" id="item-brand" required placeholder="Carhartt, Stussy, Nike..." class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">Цена (BYN) *</label>
+                        <input type="number" step="0.5" id="item-price" required placeholder="140" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">Категория *</label>
+                        <input type="text" id="item-category" required placeholder="Худи, Куртки..." class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">Размер бирки *</label>
+                        <input type="text" id="item-size" required placeholder="L, XL, 42..." class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">Состояние *</label>
+                        <select id="item-condition" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm outline-none">
+                            <option value="NEW_WITH_TAG">Новое с биркой</option>
+                            <option value="EXCELLENT" selected>Отличное</option>
+                            <option value="GOOD">Хорошее</option>
+                            <option value="HAS_FLAWS">С нюансами</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">Пол *</label>
+                        <select id="item-gender" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm outline-none">
+                            <option value="UNISEX" selected>Unisex</option>
+                            <option value="MALE">Мужское</option>
+                            <option value="FEMALE">Женское</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-neutral-400 mb-1">ID Продавца *</label>
+                        <input type="number" id="item-seller-id" required value="1" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                    </div>
+                </div>
+
+                <!-- Блок Киллер-фичи: Замеры -->
+                <div class="border border-neutral-800 bg-neutral-950/60 p-4 rounded-xl mt-4">
+                    <h3 class="text-xs font-mono uppercase text-lime-400 font-bold mb-2 flex items-center gap-1.5">
+                        <i data-lucide="ruler" class="w-3.5 h-3.5"></i> Точные замеры вещи (в см)
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        <div>
+                            <label class="text-[11px] text-neutral-400">Грудь (п/обхват)</label>
+                            <input type="number" id="item-chest" placeholder="см" class="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-neutral-400">Длина</label>
+                            <input type="number" id="item-length" placeholder="см" class="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-neutral-400">Плечи</label>
+                            <input type="number" id="item-shoulder" placeholder="см" class="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-neutral-400">Рукав</label>
+                            <input type="number" id="item-sleeve" placeholder="см" class="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-neutral-400">Стелька (обувь)</label>
+                            <input type="number" step="0.5" id="item-insole" placeholder="см" class="w-full bg-neutral-900 border border-neutral-800 rounded px-2 py-1.5 text-xs outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-mono text-neutral-400 mb-1">Ссылка на фото (URL)</label>
+                    <input type="url" id="item-image" placeholder="https://images.unsplash.com/photo-1556905055-8f358a7a47b2" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-mono text-neutral-400 mb-1">Описание</label>
+                    <textarea id="item-desc" rows="2" placeholder="Состояние, нюансы, состав..." class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 bg-lime-400 text-black font-bold rounded-lg hover:bg-lime-300 transition text-sm">
+                    Опубликовать вещь
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 3. ВКЛАДКА: СОЗДАТЬ ПРОДАВЦА -->
+    <section id="view-create-user" class="hidden max-w-md mx-auto">
+        <div class="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-xl font-bold mb-4">Регистрация продавца</h2>
+
+            <form onsubmit="handleCreateUser(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-mono text-neutral-400 mb-1">Никнейм *</label>
+                    <input type="text" id="user-username" required placeholder="danilovich_seller" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-neutral-400 mb-1">Telegram (@username) *</label>
+                    <input type="text" id="user-tg" required placeholder="@pyfas" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-neutral-400 mb-1">Телефон *</label>
+                    <input type="text" id="user-phone" required placeholder="+375 29 123 45 67" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-neutral-400 mb-1">Город *</label>
+                    <input type="text" id="user-city" required placeholder="Минск" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:border-lime-400 outline-none">
+                </div>
+
+                <button type="submit" class="w-full py-2.5 bg-white text-black font-bold rounded-lg hover:bg-neutral-200 transition text-sm mt-4">
+                    Создать продавца
+                </button>
+            </form>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // Инициализация иконок
+    lucide.createIcons();
+
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-lg shadow-xl text-sm font-semibold flex items-center space-x-2 ${isError ? 'bg-red-500 text-white' : 'bg-lime-400 text-black'}`;
+        toast.textContent = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+
+    function switchTab(tab) {
+        ['feed', 'create-item', 'create-user'].forEach(t => {
+            document.getElementById(`view-${t}`).classList.add('hidden');
+            document.getElementById(`tab-${t}`).className = 'px-4 py-2 rounded-lg text-sm font-semibold transition text-neutral-400 hover:text-white';
+        });
+        document.getElementById(`view-${tab}`).classList.remove('hidden');
+        document.getElementById(`tab-${tab}`).className = 'px-4 py-2 rounded-lg text-sm font-semibold transition bg-neutral-800 text-lime-400';
+
+        if (tab === 'feed') loadItems();
+    }
+
+    // 1. Загрузка витрины (GET /api/items)
+    async function loadItems() {
+        const container = document.getElementById('items-grid');
+        container.innerHTML = '<p class="text-neutral-500 text-sm">Загружаем дропы...</p>';
+
+        try {
+            const res = await fetch('/api/items');
+            if (!res.ok) throw new Error('Ошибка сервера: ' + res.status);
+            const items = await res.json();
+
+            if (items.length === 0) {
+                container.innerHTML = `
+            <div class="col-span-full text-center py-12 border border-dashed border-neutral-800 rounded-2xl">
+              <p class="text-neutral-400 mb-2">На витрине пока пусто!</p>
+              <button onclick="switchTab('create-user')" class="text-xs text-lime-400 underline font-mono">Сначала создай продавца, а затем выстави вещь</button>
+            </div>
+          `;
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+          <div onclick="inspectItem(${item.id})" class="cursor-pointer group bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden hover:border-lime-400/50 transition duration-300 flex flex-col">
+            <!-- Фото -->
+            <div class="h-64 bg-neutral-950 relative overflow-hidden flex items-center justify-center">
+              ${item.images && item.images.length > 0 && item.images[0]
+                ? `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">`
+                : `<div class="text-neutral-600 font-mono text-xs">Нет фото</div>`}
+              <span class="absolute top-3 left-3 bg-neutral-950/80 backdrop-blur border border-neutral-700 text-xs px-2.5 py-1 rounded-md font-mono text-lime-400">
+                ${item.brand || 'No brand'}
+              </span>
+              <span class="absolute top-3 right-3 bg-neutral-950/80 backdrop-blur text-xs px-2 py-0.5 rounded text-neutral-300">
+                ${item.size}
+              </span>
+            </div>
+
+            <!-- Инфо -->
+            <div class="p-4 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-baseline mb-1">
+                  <h3 class="font-bold text-base text-white group-hover:text-lime-400 transition">${item.title}</h3>
+                  <span class="text-lg font-black text-lime-400 font-mono">${item.price} BYN</span>
+                </div>
+                <p class="text-xs text-neutral-400 line-clamp-2 mb-3">${item.description || ''}</p>
+
+                <!-- Замеры -->
+                <div class="grid grid-cols-2 gap-1.5 bg-neutral-950/80 p-2.5 rounded-lg border border-neutral-800/80 text-[11px] font-mono text-neutral-300 mb-3">
+                  ${item.chestWidth ? `<div>Грудь: <span class="text-white font-bold">${item.chestWidth} см</span></div>` : ''}
+                  ${item.totalLength ? `<div>Длина: <span class="text-white font-bold">${item.totalLength} см</span></div>` : ''}
+                  ${item.shoulderWidth ? `<div>Плечи: <span class="text-white font-bold">${item.shoulderWidth} см</span></div>` : ''}
+                  ${item.sleeveLength ? `<div>Рукав: <span class="text-white font-bold">${item.sleeveLength} см</span></div>` : ''}
+                  ${item.insoleLength ? `<div>Стелька: <span class="text-white font-bold">${item.insoleLength} см</span></div>` : ''}
+                </div>
+              </div>
+
+              <!-- Футер карточки -->
+              <div class="border-t border-neutral-800/80 pt-3 flex justify-between items-center text-xs text-neutral-400">
+                <div class="flex items-center space-x-1.5">
+                  <span class="font-semibold text-neutral-200">@${item.sellerUsername || 'seller'}</span>
+                  <span>(${item.sellerCity || 'Беларусь'})</span>
+                </div>
+                <div class="flex items-center space-x-1 font-mono text-[11px]">
+                  <span>👁️</span>
+                  <span id="views-${item.id}">${item.viewCounts || 0}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        } catch (err) {
+            container.innerHTML = `<p class="text-red-400 text-sm">Не удалось подключиться к серверу. Убедись, что Spring Boot запущен!</p>`;
+        }
+    }
+
+    // Клик по карточке — инкрементирует просмотры через GET /api/items/{id}
+    async function inspectItem(id) {
+        try {
+            const res = await fetch(`/api/items/${id}`);
+            if (res.ok) {
+                const item = await res.json();
+                const el = document.getElementById(`views-${id}`);
+                if (el) el.textContent = item.viewCounts;
+                showToast(`Открыта вещь #${id}. Просмотров: ${item.viewCounts}`);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // 2. Создание пользователя (POST /api/users)
+    async function handleCreateUser(e) {
+        e.preventDefault();
+        const body = {
+            username: document.getElementById('user-username').value,
+            telegramHandler: document.getElementById('user-tg').value,
+            phone: document.getElementById('user-phone').value,
+            city: document.getElementById('user-city').value
+        };
+
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) throw new Error('Ошибка ' + res.status);
+            const user = await res.json();
+
+            showToast(`Продавец ${user.username} создан! ID: ${user.id}`);
+            document.getElementById('item-seller-id').value = user.id;
+            setTimeout(() => switchTab('create-item'), 1000);
+        } catch (err) {
+            showToast('Не удалось создать продавца: ' + err.message, true);
+        }
+    }
+
+    // 3. Создание вещи (POST /api/items)
+    async function handleCreateItem(e) {
+        e.preventDefault();
+        const img = document.getElementById('item-image').value.trim();
+        const body = {
+            title: document.getElementById('item-title').value,
+            brand: document.getElementById('item-brand').value,
+            price: parseFloat(document.getElementById('item-price').value),
+            category: document.getElementById('item-category').value,
+            size: document.getElementById('item-size').value,
+            condition: document.getElementById('item-condition').value,
+            gender: document.getElementById('item-gender').value,
+            sellerId: parseInt(document.getElementById('item-seller-id').value),
+            chestWidth: parseInt(document.getElementById('item-chest').value) || null,
+            totalLength: parseInt(document.getElementById('item-length').value) || null,
+            shoulderWidth: parseInt(document.getElementById('item-shoulder').value) || null,
+            sleeveLength: parseInt(document.getElementById('item-sleeve').value) || null,
+            insoleLength: parseFloat(document.getElementById('item-insole').value) || null,
+            images: img ? [img] : [],
+            description: document.getElementById('item-desc').value
+        };
+
+        try {
+            const res = await fetch('/api/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) throw new Error('Ошибка ' + res.status);
+            const item = await res.json();
+
+            showToast(`Вещь "${item.title}" опубликована!`);
+            setTimeout(() => switchTab('feed'), 800);
+        } catch (err) {
+            showToast('Ошибка при публикации: ' + err.message, true);
+        }
+    }
+
+    // Запуск при загрузке страницы
+    loadItems();
+</script>
+</body>
+</html>

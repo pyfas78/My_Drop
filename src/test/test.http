@@ -1,0 +1,35 @@
+1. Создаем пользователя (продавца)
+POST http://localhost:8080/api/users
+Content-Type: application/json
+{
+  "username": "danilovich_seller",
+  "telegramHandler": "@pyfas",
+  "phone": "+375291234567",
+  "city": "Минск"
+}
+2. Выставляем худи Carhartt с точными замерами
+POST http://localhost:8080/api/items
+Content-Type: application/json
+{
+  "title": "Худи Carhartt WIP",
+  "description": "Плотный выстиранный хлопок, идеальное состояние",
+  "price": 140.00,
+  "brand": "Carhartt",
+  "category": "Худи",
+  "size": "L",
+  "sellerId": 1,
+  "chestWidth": 62,
+  "totalLength": 71,
+  "shoulderWidth": 54,
+  "sleeveLength": 65,
+  "insoleLength": null,
+  "images": [
+    "https://drop.by/photos/carhartt_front.jpg"
+  ],
+  "gender": "UNISEX",
+  "condition": "EXCELLENT"
+}
+3. Получаем всю витрину доступных вещей
+GET http://localhost:8080/api/items
+4. Открываем вещь по ID (проверяем накрутку просмотров)
+GET http://localhost:8080/api/items/1
